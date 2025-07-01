@@ -7,8 +7,8 @@ from datetime import datetime
 import serial
 arduino = serial.Serial("COM5", 9600)
 cap = cv2.VideoCapture(0)
-sol = [33, 160, 158, 133, 153, 144, 33]
-sag = [362, 385, 387, 263, 373, 380, 362]
+sol = [33, 160, 158, 133, 153, 144]
+sag = [362, 385, 387, 263, 373, 380]
 ear = 0.28
 yuz = mp.solutions.face_mesh
 yuzler = yuz.FaceMesh(max_num_faces = 1)
