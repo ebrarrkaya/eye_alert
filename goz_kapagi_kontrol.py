@@ -2,7 +2,7 @@ import cv2
 from math import dist
 import mediapipe as mp
 from PIL import ImageFont, ImageDraw, Image
-from numpy import array
+import numpy as np
 from datetime import datetime
 import serial
 arduino = serial.Serial("COM5", 9600)
@@ -28,21 +28,19 @@ while True:
     if algilama.multi_face_landmarks:
         yuz = algilama.multi_face_landmarks[0]
         solkordinat, sagkordinat = [], []
-        a, b = int(yuz.landmark[160].x*genislik), int(yuz.landmark[160].y*yukseklik)
         for i in sol:
             x, y = int(yuz.landmark[i].x*genislik), int(yuz.landmark[i].y*yukseklik)
             solkordinat.append((x, y))
             cv2.circle(goruntu, (x,y), 2, (0,0,255), -1)
-            cv2.line(goruntu, (x,y), (a,b), (0,0,255), 1)
-            a,b = x,y
+        pts = np.array(solkordinat, np.int32).reshape(-1,1,2)
+        cv2.polylines(goruntu, [pts], True, (0,0,255),1)
 
-        a, b = int(yuz.landmark[385].x*genislik), int(yuz.landmark[385].y*yukseklik)
         for i in sag:
             x, y = int(yuz.landmark[i].x*genislik), int(yuz.landmark[i].y*yukseklik)
             sagkordinat.append((x,y))
             cv2.circle(goruntu, (x,y), 2, (0,0,255), -1)
-            cv2.line(goruntu, (x,y), (a,b), (0,0,255), 1)
-            a,b = x,y
+        pts = np.array(sagkordinat, np.int32).reshape(-1,1,2)
+        cv2.polylines(goruntu, [pts], True, (0,0,255),1)
 
         soldikey1, soldikey2 = dist(solkordinat[1], solkordinat[5]), dist(solkordinat[2], solkordinat[4])
         sagdikey1, sagdikey2 = dist(sagkordinat[1], sagkordinat[5]), dist(sagkordinat[2], sagkordinat[4])
@@ -77,7 +75,7 @@ while True:
     pilgoruntu = Image.fromarray(cv2.cvtColor(goruntu, cv2.COLOR_BGR2RGB))
     draw = ImageDraw.Draw(pilgoruntu)
     draw.text((30, 40), durum + f" | Ear: {ort_ear:.2f}", font=font, fill=renk)
-    goruntu = cv2.cvtColor(array(pilgoruntu), cv2.COLOR_RGB2BGR)
+    goruntu = cv2.cvtColor(np.array(pilgoruntu), cv2.COLOR_RGB2BGR)
     
     cv2.imshow("Goz Takibi", goruntu)
     if cv2.waitKey(1) & 0xFF == 27:
